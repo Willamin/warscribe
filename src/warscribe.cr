@@ -21,7 +21,7 @@ def handle(context)
 end
 
 def handle_post(context)
-  context << "thanks for posting"
+  context << "thanks for making #holywars a better place"
   context << "\n"
   Warscribe.recent_data = context.data
 end
