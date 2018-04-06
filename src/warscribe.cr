@@ -28,7 +28,7 @@ def handle(context)
   context << "thanks for making #holywars a better place. now get back to fighting!"
   context << "\n"
 rescue
-  context << "that's invalid data, stupid"
+  context << "something didn't work... probably PEBCAK"
 end
 
 server.listen
