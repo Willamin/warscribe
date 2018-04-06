@@ -1,3 +1,4 @@
 .shards
 bin
 lib
+.stout-cache
