@@ -4,11 +4,18 @@ module Warscribe
   VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
 end
 
-server = Stout::Server.new
-server.default_route = "/"
-server.get("/", &->render(Stout::Context))
-server.listen
+server = Stout::Server.new(reveal_errors: true)
+server.get("/read", :read, &->handle(Stout::Context))
+server.post("/write", :write, &->handle_post(Stout::Context))
 
-def render(context)
+def handle(context)
   context << "Hello world"
 end
+
+def handle_post(context)
+  context << "you posted"
+  context << "\n"
+  context << context.data.inspect
+end
+
+server.listen

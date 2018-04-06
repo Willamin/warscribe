@@ -18,5 +18,5 @@ shards:
 
   stout:
     github: willamin/stout
-    commit: 0be89b8f356bb48f9f7406679108e7d1e3cb6ea6
+    commit: 94302fc11ca30e65696cf898df7b420120d5286e
 
