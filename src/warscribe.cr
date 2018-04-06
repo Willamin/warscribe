@@ -1,31 +1,29 @@
 require "stout"
 require "json"
+require "airtable"
 
 module Warscribe
-  VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
-  class_property recent_data : Hash(Symbol, String)?
+  VERSION  = {{ `shards version #{__DIR__}`.chomp.stringify }}
+  AIRTABLE = Airtable::Base.new(
+    api_key: ENV["AIRTABLE_API_KEY"],
+    base: ENV["AIRTABLE_BASE_ID"]
+  )
 end
 
 server = Stout::Server.new(reveal_errors: true)
-server.get("/read", &->handle(Stout::Context))
-server.post("/write", &->handle_post(Stout::Context))
-
-Warscribe.recent_data = nil
+server.post("/write", &->handle(Stout::Context))
 
 def handle(context)
-  if Warscribe.recent_data
-    context << Warscribe.recent_data.inspect
-  else
-    context << "nothing's been posted"
-  end
-end
+  result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
+    "Submitter"     => context.data.not_nil!["user_name"].as_s,
+    "Date Added"    => Time.now.to_s,
+    "First Option"  => context.data.not_nil!["text"].as_s.split("vs")[0],
+    "Second Option" => context.data.not_nil!["text"].as_s.split("vs")[1],
+  }))
 
-def handle_post(context)
-  Warscribe.recent_data = {
-    :user_name => context.data.not_nil!["user_name"].as_s,
-    :time      => Time.now.to_s,
-    :text      => context.data.not_nil!["text"].as_s,
-  }
+  if result.is_a? Airtable::Error
+    raise result.message
+  end
 
   context << "thanks for making #holywars a better place. now get back to fighting!"
   context << "\n"
