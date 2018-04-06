@@ -12,3 +12,7 @@ license: MIT
 targets:
   warscribe:
     main: src/warscribe.cr
+
+dependencies:
+  stout:
+    github: willamin/stout
