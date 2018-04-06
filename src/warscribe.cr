@@ -5,8 +5,8 @@ module Warscribe
 end
 
 server = Stout::Server.new(reveal_errors: true)
-server.get("/read", :read, &->handle(Stout::Context))
-server.post("/write", :write, &->handle_post(Stout::Context))
+server.get("/read", &->handle(Stout::Context))
+server.post("/write", &->handle_post(Stout::Context))
 
 def handle(context)
   context << "Hello world"
