@@ -15,10 +15,10 @@ server.post("/write", &->handle(Stout::Context))
 
 def handle(context)
   result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
-    "Submitter"     => context.data.not_nil!["user_name"].as_s,
-    "Date Added"    => Time.now.to_s,
-    "First Option"  => context.data.not_nil!["text"].as_s.split("vs")[0],
-    "Second Option" => context.data.not_nil!["text"].as_s.split("vs")[1],
+    "Submitter"     => context.data.not_nil!["user_name"].as_s.strip,
+    "Date Added"    => Time.now.to_s.strip,
+    "First Option"  => context.data.not_nil!["text"].as_s.split("vs")[0].strip,
+    "Second Option" => context.data.not_nil!["text"].as_s.split("vs")[1].strip,
   }))
 
   if result.is_a? Airtable::Error
