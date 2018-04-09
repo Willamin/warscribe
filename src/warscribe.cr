@@ -19,7 +19,13 @@ class JerkException < Exception; end
 
 class AirException < Exception; end
 
+class VersionException < Exception; end
+
 def handle(context)
+  if context.data.not_nil!["text"].as_s.strip == "version"
+    raise VersionException.new
+  end
+
   now = Time.now
   username = context.data.not_nil!["user_name"].as_s.strip
 
@@ -46,6 +52,8 @@ rescue JerkException
   context << "stop being a jerk. chill"
 rescue AirException
   context << "something's wrong in the air"
+rescue VersionException
+  context << Warscribe::VERSION
 rescue
   context << "something didn't work... probably PEBCAK"
 end
