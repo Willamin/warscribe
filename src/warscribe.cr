@@ -15,15 +15,10 @@ end
 server = Stout::Server.new(reveal_errors: true)
 server.post("/write", &->handle(Stout::Context))
 
-class JerkException < Exception; end
-
-class AirException < Exception; end
-
-class VersionException < Exception; end
-
 def handle(context)
   if context.data.not_nil!["text"].as_s.strip == "version"
-    raise VersionException.new
+    context << Warscribe::VERSION
+    return
   end
 
   now = Time.now
@@ -31,7 +26,10 @@ def handle(context)
 
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
     submitting_too_fast = previous_submission_time - now < 1.minutes
-    raise JerkException.new if submitting_too_fast
+    if submitting_too_fast
+      context << "stop being a jerk. chill"
+      return
+    end
   end
   Warscribe::USER_TIMEOUT[username] = now
 
@@ -43,17 +41,11 @@ def handle(context)
   }))
 
   if result.is_a? Airtable::Error
-    raise AirException.new
+    context << "something's wrong in the air"
+    return
   end
 
   context << "thanks for making #holywars a better place. now get back to fighting!"
-  context << "\n"
-rescue JerkException
-  context << "stop being a jerk. chill"
-rescue AirException
-  context << "something's wrong in the air"
-rescue VersionException
-  context << Warscribe::VERSION
 rescue
   context << "something didn't work... probably PEBCAK"
 end
