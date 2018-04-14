@@ -16,13 +16,13 @@ server = Stout::Server.new(reveal_errors: true)
 server.post("/write", &->handle(Stout::Context))
 
 def handle(context)
-  if context.data.not_nil!["text"].as_s.strip == "version"
+  if context.params["text"].as_s.strip == "version"
     context << Warscribe::VERSION
     return
   end
 
   now = Time.now
-  username = context.data.not_nil!["user_name"].as_s.strip
+  username = context.params["user_name"].as_s.strip
 
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
     submitting_too_fast = previous_submission_time - now < 1.minutes
@@ -36,8 +36,8 @@ def handle(context)
   result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
     "Submitter"     => username,
     "Date Added"    => Time.now.to_s(Time::Format::ISO_8601_DATE_TIME.pattern).strip,
-    "First Option"  => context.data.not_nil!["text"].as_s.split("vs")[0].strip,
-    "Second Option" => context.data.not_nil!["text"].as_s.split("vs")[1].strip,
+    "First Option"  => context.params["text"].as_s.split("vs")[0].strip,
+    "Second Option" => context.params["text"].as_s.split("vs")[1].strip,
   }))
 
   if result.is_a? Airtable::Error
