@@ -15,6 +15,18 @@ end
 server = Stout::Server.new(reveal_errors: true)
 server.post("/write", &->handle(Stout::Context))
 
+def response(context, message, ephemeral = true)
+  response_type = "in_channel"
+  response_type = "ephemeral" if ephemeral
+
+  context << <<-JSON
+{
+  "response_type": "#{response_type}",
+  "text": "#{message}",
+}
+JSON
+end
+
 def handle(context)
   text = context.params["text"]?.try &.to_s.strip || ""
 
@@ -29,7 +41,7 @@ def handle(context)
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
     submitting_too_fast = previous_submission_time - now < 1.minutes
     if submitting_too_fast
-      context << "stop being a jerk. chill"
+      response(context, "stop being a jerk. chill")
       return
     end
   end
@@ -49,13 +61,13 @@ def handle(context)
   }))
 
   if result.is_a? Airtable::Error
-    context << "something's wrong in the air"
+    response(context, "something's wrong in the air")
     return
   end
 
-  context << "thanks for making #holywars a better place. now get back to fighting!"
+  response(context, "thanks for making #holywars a better place. now get back to fighting!", false)
 rescue
-  context << "something didn't work... probably PEBCAK"
+  response(context, "something didn't work... probably PEBCAK")
 end
 
 server.listen
