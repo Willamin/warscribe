@@ -25,6 +25,7 @@ def response(context, message, ephemeral = true)
   "text": "#{message}",
 }
 JSON
+  context.response.content_type = "application/json"
 end
 
 def handle(context)
