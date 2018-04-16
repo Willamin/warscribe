@@ -36,13 +36,16 @@ def handle(context)
   Warscribe::USER_TIMEOUT[username] = now
 
   first = text.split("vs")[0]?.try &.strip || ""
-  second = text.split("vs")[1]?.try &.strip || ""
+  second_and_third = text.split("vs")[1]?.try &.strip || ""
+  second = second_and_third.split("when")[0]?.try &.strip || ""
+  third = second_and_third.split("when")[1]?.try &.strip || ""
 
   result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
     "Submitter"     => username,
     "Date Added"    => Time.now.to_s(Time::Format::ISO_8601_DATE_TIME.pattern).strip,
     "First Option"  => first,
     "Second Option" => second,
+    "Context"       => third,
   }))
 
   if result.is_a? Airtable::Error
