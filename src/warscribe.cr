@@ -4,7 +4,6 @@ require "airtable"
 
 module Warscribe
   VERSION  = {{ `shards version #{__DIR__}`.chomp.stringify }}
-  GIT_HASH = {{ `git rev-parse HEAD`[0..5].chomp.stringify }}
   AIRTABLE = Airtable::Base.new(
     api_key: ENV["AIRTABLE_API_KEY"],
     base: ENV["AIRTABLE_BASE_ID"]
@@ -12,8 +11,6 @@ module Warscribe
 
   USER_TIMEOUT = Hash(String, Time).new
 end
-
-puts "hash: #{Warscribe::GIT_HASH}"
 
 server = Stout::Server.new(reveal_errors: true)
 server.post("/write", &->handle(Stout::Context))
@@ -23,9 +20,6 @@ def handle(context)
 
   if text == "version"
     context << Warscribe::VERSION
-    unless Warscribe::GIT_HASH.empty?
-      context << " (#{Warscribe::GIT_HASH})"
-    end
     return
   end
 
