@@ -37,8 +37,8 @@ def handle(context)
 
   first = text.split("vs")[0]?.try &.strip || ""
   second_and_third = text.split("vs")[1]?.try &.strip || ""
-  second = second_and_third.split("when")[0]?.try &.strip || ""
-  third = second_and_third.split("when")[1]?.try &.strip || ""
+  second = second_and_third.split(";")[0]?.try &.strip || ""
+  third = second_and_third.split(";")[1]?.try &.strip || ""
 
   result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
     "Submitter"     => username,

@@ -10,4 +10,4 @@ Warscribe is built to store its data in [Airtable](airtable.com).
 Currently, Warscribe will do one of two things when parsing a command.
 It will return its version if the invoked command was `/add version`.
 It will add two options to a list of comparisons when they are separated by `vs`, eg. `/add foo vs bar`.
-You can provide a context for the war by appened `when baz`. 
+You can provide a context for the war by appending a semicolon followed by the extra context, eg. `; baz`. 
