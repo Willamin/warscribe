@@ -21,11 +21,11 @@ def response(context, message, ephemeral = true)
   response_type = "ephemeral" if ephemeral
 
   context << <<-JSON
-{
-  "response_type": "#{response_type}",
-  "text": "#{message}",
-}
-JSON
+    {
+      "response_type": "#{response_type}",
+      "text": "#{message}",
+    }
+    JSON
   context.response.content_type = "application/json"
 end
 
@@ -42,7 +42,7 @@ def handle(context)
   username = context.params["user_name"]?.try &.to_s.strip || ""
 
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
-    submitting_too_fast = previous_submission_time - now < 1.minutes
+    submitting_too_fast = (previous_submission_time - now) < 1.minutes
     if submitting_too_fast
       response(context, "stop being a jerk. chill")
       return
