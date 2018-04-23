@@ -40,7 +40,7 @@ def handle(context)
   username = context.params["user_name"]?.try &.to_s.strip || ""
 
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
-    submitting_too_fast = (previous_submission_time - now) < 1.minutes
+    submitting_too_fast = (now - previous_submission_time) < 1.minutes
 
     pp username
     pp previous_submission_time
