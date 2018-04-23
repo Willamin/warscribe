@@ -43,6 +43,12 @@ def handle(context)
 
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
     submitting_too_fast = (previous_submission_time - now) < 1.minutes
+
+    pp username
+    pp previous_submission_time
+    pp now
+    pp (previous_submission_time - now)
+
     if submitting_too_fast
       response(context, "stop being a jerk. chill")
       return
