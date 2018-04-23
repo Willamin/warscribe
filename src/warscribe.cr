@@ -68,7 +68,7 @@ def handle(context)
     return
   end
 
-  response(context, "thanks for making #holywars a better place. now get back to fighting!", false)
+  response(context, "thanks for making <#C9P3GNQ66|holywars> a better place. now get back to fighting!", false)
 rescue
   response(context, "something didn't work... probably PEBCAK")
 end
