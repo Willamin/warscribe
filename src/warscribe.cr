@@ -4,7 +4,6 @@ require "airtable"
 
 module Warscribe
   VERSION  = {{ `shards version #{__DIR__}`.chomp.stringify }}
-  GIT_HASH = {{ `cat .git/refs/heads/master`.chomp.stringify }}[0..5]
   AIRTABLE = Airtable::Base.new(
     api_key: ENV["AIRTABLE_API_KEY"],
     base: ENV["AIRTABLE_BASE_ID"]
@@ -34,7 +33,6 @@ def handle(context)
 
   if text == "version"
     context << Warscribe::VERSION
-    context << " (#{Warscribe::GIT_HASH})"
     return
   end
 
