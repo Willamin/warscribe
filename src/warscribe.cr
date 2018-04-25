@@ -1,6 +1,7 @@
 require "stout"
 require "json"
 require "airtable"
+require "warsplitter"
 
 module Warscribe
   VERSION  = {{ `shards version #{__DIR__}`.chomp.stringify }}
@@ -49,17 +50,19 @@ def handle(context)
   end
   Warscribe::USER_TIMEOUT[username] = now
 
-  first = text.split("vs")[0]?.try &.strip || ""
-  second_and_third = text.split("vs")[1]?.try &.strip || ""
-  second = second_and_third.split(";")[0]?.try &.strip || ""
-  third = second_and_third.split(";")[1]?.try &.strip || ""
+  begin
+    war = War.new(text)
+  rescue ex : Warsplitter::WarCrime
+    response(context, ex.to_s)
+    return
+  end
 
   result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
     "Submitter"     => username,
     "Date Added"    => Time.now.to_s(Time::Format::ISO_8601_DATE_TIME.pattern).strip,
-    "First Option"  => first,
-    "Second Option" => second,
-    "Context"       => third,
+    "First Option"  => war.first_option,
+    "Second Option" => war.second_option,
+    "Context"       => war.context,
   }))
 
   if result.is_a? Airtable::Error

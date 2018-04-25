@@ -24,3 +24,7 @@ shards:
     github: willamin/stout
     commit: 6c21d77cd88594834c0a8f77204540e702357559
 
+  warsplitter:
+    github: t-richards/warsplitter
+    version: 1.0.0
+
