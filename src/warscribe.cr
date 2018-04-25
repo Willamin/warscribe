@@ -48,7 +48,6 @@ def handle(context)
       return
     end
   end
-  Warscribe::USER_TIMEOUT[username] = now
 
   begin
     war = War.new(text)
@@ -70,6 +69,7 @@ def handle(context)
     return
   end
 
+  Warscribe::USER_TIMEOUT[username] = now
   response(context, "thanks for making <#C9P3GNQ66|holywars> a better place. now get back to fighting!", false)
 rescue
   response(context, "something didn't work... probably PEBCAK")
