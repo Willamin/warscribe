@@ -1,5 +1,5 @@
 name: warscribe
-version: 1.2.7
+version: 1.2.8
 
 authors:
   - Will Lewis <will@wflewis.com>
@@ -16,6 +16,7 @@ targets:
 dependencies:
   stout:
     github: willamin/stout
+    version: 0.1.1
   airtable:
     github: t-richards/airtable
   warsplitter:

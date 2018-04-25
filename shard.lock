@@ -22,7 +22,7 @@ shards:
 
   stout:
     github: willamin/stout
-    commit: 48efa0a98f1db8316ba08d9e1b5bdd68fc70a8de
+    version: 0.1.1
 
   warsplitter:
     github: t-richards/warsplitter
