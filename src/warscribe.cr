@@ -30,7 +30,7 @@ def response(context, message, ephemeral = true)
 end
 
 def handle(context)
-  text = context.params["text"]?.try &.to_s.strip || ""
+  text = context.params["text"].to_s.strip
 
   if text == "version"
     context << Warscribe::VERSION
@@ -38,7 +38,7 @@ def handle(context)
   end
 
   now = Time.now
-  username = context.params["user_name"]?.try &.to_s.strip || ""
+  username = context.params["user_name"].to_s.strip
 
   Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
     submitting_too_fast = (now - previous_submission_time) < 1.minutes
