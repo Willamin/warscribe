@@ -3,6 +3,12 @@ require "json"
 require "airtable"
 require "warsplitter"
 
+class War
+  property username : String = ""
+
+  def initialize; end
+end
+
 module Warscribe
   extend self
   VERSION      = {{ `shards version #{__DIR__}`.chomp.stringify }}
@@ -13,17 +19,49 @@ module Warscribe
   )
 
   def routes(server)
-    server.post("/write", &->write(Stout::Context))
+    server.post("/write") do |context|
+      case text = context.params["text"].to_s.strip
+      when "version"
+        version(context)
+      when "todayswar"
+        # todayswar(context)
+        Slack.response(context, "this feature isn't finished.", true)
+      else
+        savewar(text, context)
+      end
+    rescue e
+      Slack.response(context, "something didn't work... probably PEBCAK\n #{e.backtrace}")
+    end
   end
 
-  def write(context : Stout::Context)
-    text = context.params["text"].to_s.strip
+  def version(context)
+    Slack.response(context, Warscribe::VERSION, true)
+  end
 
-    if text == "version"
-      context << Warscribe::VERSION
-      return
+  def todayswar(context)
+    war = War.new
+    war.first_option = "option A"
+    war.second_option = "option B"
+    war.context = "context"
+    war.username = "someone"
+
+    welcome_message = String.build do |s|
+      s.puts "Hello and Good Morning Everybody!"
+      s.puts "Today's war will be fought between:"
+      s.puts "*#{war.first_option}*"
+      s.puts "and"
+      s.puts "*#{war.second_option}*"
+      unless war.context.blank?
+        s.puts "in the context of"
+        s.puts "*#{war.context}*"
+      end
+      s.puts "Today's war is brought to you by the letter *#{war.username[0].upcase}*, as in `#{war.username}`."
     end
 
+    Slack.response(context, welcome_message, false)
+  end
+
+  def savewar(text : String, context : Stout::Context)
     now = Time.now
     username = context.params["user_name"].to_s.strip
 
@@ -58,8 +96,6 @@ module Warscribe
 
     Warscribe::USER_TIMEOUT[username] = now
     Slack.response(context, "thanks for making <#C9P3GNQ66|holywars> a better place. now get back to fighting!", false)
-  rescue
-    Slack.response(context, "something didn't work... probably PEBCAK")
   end
 
   module Slack
