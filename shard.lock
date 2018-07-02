@@ -21,7 +21,7 @@ shards:
     version: 0.3.8
 
   stout:
-    path: ../stout
+    github: willamin/stout
     version: 0.2.0
 
   warsplitter:

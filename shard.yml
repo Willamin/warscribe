@@ -15,9 +15,8 @@ targets:
 
 dependencies:
   stout:
-    # github: willamin/stout
-    # version: 0.2.0
-    path: ../stout
+    github: willamin/stout
+    version: 0.2.0
   airtable:
     github: t-richards/airtable
   warsplitter:
