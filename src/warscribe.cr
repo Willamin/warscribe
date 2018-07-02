@@ -4,6 +4,7 @@ require "airtable"
 require "warsplitter"
 require "failure"
 
+# reopened from warsplitter
 class War
   property username : String = ""
 
@@ -20,7 +21,9 @@ class War
         s.puts "in the context of"
         s.puts "*#{context}*"
       end
-      s.puts "Today's war is brought to you by the letter *#{username[0].upcase}*, as in `#{username}`."
+      if username.size > 0
+        s.puts "Today's war is brought to you by the letter *#{username[0].upcase}*, as in `#{username}`."
+      end
     end
   end
 end
@@ -53,6 +56,8 @@ module Warscribe
       when "todayswar"
         # todayswar(context)
         Slack.response(context, "this feature isn't finished.", true)
+      when .starts_with?("wardeclaration")
+        wardeclaration(text, context)
       else
         savewar(text, context)
       end
@@ -64,6 +69,18 @@ module Warscribe
 
   def version(context)
     Slack.response(context, Warscribe::VERSION, true)
+  end
+
+  def wardeclaration(text, context)
+    username = text.split(" ")[1]
+    text = text.split(" ")[2..-1].join(" ")
+
+    war = War.new(text)
+    war.username = username
+    Slack.response(context, war.format_for_slack)
+  rescue ex : Warsplitter::WarCrime
+    Slack.response(context, ex.to_s)
+    return
   end
 
   def todayswar(context)
