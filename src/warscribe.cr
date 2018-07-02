@@ -2,6 +2,7 @@ require "stout"
 require "json"
 require "airtable"
 require "warsplitter"
+require "failure"
 
 class War
   property username : String = ""
@@ -28,14 +29,25 @@ module Warscribe
   extend self
   VERSION      = {{ `shards version #{__DIR__}`.chomp.stringify }}
   USER_TIMEOUT = Hash(String, Time).new
-  AIRTABLE     = Airtable::Base.new(
-    api_key: ENV["AIRTABLE_API_KEY"],
-    base: ENV["AIRTABLE_BASE_ID"]
-  )
+  AIRTABLE     = setup_airtable
+
+  def setup_airtable
+    api_key = ENV["AIRTABLE_API_KEY"]?
+    base = ENV["AIRTABLE_BASE_ID"]?
+
+    if api_key.nil? || base.nil?
+      return nil
+    end
+
+    Airtable::Base.new(
+      api_key: api_key,
+      base: base
+    )
+  end
 
   def routes(server)
     server.post("/write") do |context|
-      case text = context.params["text"].to_s.strip
+      case text = (context.params["text"]? || "").to_s.strip
       when "version"
         version(context)
       when "todayswar"
@@ -45,7 +57,8 @@ module Warscribe
         savewar(text, context)
       end
     rescue e
-      Slack.response(context, "something didn't work... probably PEBCAK\n #{e.backtrace}")
+      Slack.response(context, "something didn't work... probably PEBCAK\n")
+      STDERR.puts(e.backtrace.join("\n"))
     end
   end
 
@@ -65,7 +78,7 @@ module Warscribe
 
   def savewar(text : String, context : Stout::Context)
     now = Time.now
-    username = context.params["user_name"].to_s.strip
+    username = context.params["user_name"]?.try(&.to_s.strip).fail { raise "Missing user_name" } || ""
 
     Warscribe::USER_TIMEOUT[username]?.try do |previous_submission_time|
       submitting_too_fast = (now - previous_submission_time) < 1.minutes
@@ -83,18 +96,29 @@ module Warscribe
       return
     end
 
-    result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
+    airtable_record = Airtable::Record.new({
       "Submitter"     => username,
       "Date Added"    => Time::Format.new("%FT%X%z").format(now).strip,
       "First Option"  => war.first_option,
       "Second Option" => war.second_option,
       "Context"       => war.context,
-    }))
+    })
 
-    if result.is_a? Airtable::Error
-      Slack.response(context, "something's wrong in the air")
-      return
-    end
+    Warscribe::AIRTABLE
+      .attempt do |airtable|
+        result = airtable.table("Wars").create(airtable_record)
+
+        if result.is_a? Airtable::Error
+          Slack.response(context, "something's wrong in the air")
+          return
+        end
+      end
+      .fail do
+        Slack.response(context, "airtable not found")
+        STDERR.puts("Airtable API keys not provided. Here's what would've been written:")
+        p(airtable_record)
+        return
+      end
 
     Warscribe::USER_TIMEOUT[username] = now
     Slack.response(context, "thanks for making <#C9P3GNQ66|holywars> a better place. now get back to fighting!", false)
@@ -108,11 +132,11 @@ module Warscribe
       response_type = "ephemeral" if ephemeral
 
       context << <<-JSON
-    {
-      "response_type": "#{response_type}",
-      "text": "#{message}",
-    }
-    JSON
+      {
+        "response_type": "#{response_type}",
+        "text": "#{message}",
+      }
+      JSON
       context.response.content_type = "application/json"
     end
   end

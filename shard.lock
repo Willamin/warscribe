@@ -8,6 +8,10 @@ shards:
     github: crystal-lang/crystal-db
     version: 0.5.0
 
+  failure:
+    github: willamin/failure
+    commit: f7f9e2f3b8166d7d8585954765c7cbbc5c7da2fe
+
   granite:
     github: amberframework/granite
     version: 0.12.1
@@ -17,7 +21,7 @@ shards:
     version: 0.3.8
 
   stout:
-    github: willamin/stout
+    path: ../stout
     version: 0.2.0
 
   warsplitter:
