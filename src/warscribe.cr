@@ -72,6 +72,12 @@ module Warscribe
   end
 
   def wardeclaration(text, context)
+    # I'm too lazy to put in proper limits/auth restrictions,
+    #   so _for now_ it'll just be me :D
+    unless (context.params["user_name"]? || "willamin") == "willamin"
+      Slack.response(context, "this feature isn't finished.", true)
+    end
+
     username = text.split(" ")[1]
     text = text.split(" ")[2..-1].join(" ")
 
