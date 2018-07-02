@@ -8,13 +8,9 @@ shards:
     github: crystal-lang/crystal-db
     version: 0.5.0
 
-  granite_orm:
-    github: amberframework/granite-orm
-    version: 0.9.1
-
-  morganite:
-    github: willamin/morganite
-    commit: 9c0562e3157fcff117eb5f5822b8fe74f7497f4a
+  granite:
+    github: amberframework/granite
+    version: 0.12.1
 
   radix:
     github: luislavena/radix
@@ -22,7 +18,7 @@ shards:
 
   stout:
     github: willamin/stout
-    version: 0.1.1
+    version: 0.2.0
 
   warsplitter:
     github: t-richards/warsplitter

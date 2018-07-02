@@ -7,6 +7,21 @@ class War
   property username : String = ""
 
   def initialize; end
+
+  def format_for_slack
+    String.build do |s|
+      s.puts "Hello and Good Morning Everybody!"
+      s.puts "Today's war will be fought between:"
+      s.puts "*#{first_option}*"
+      s.puts "and"
+      s.puts "*#{second_option}*"
+      unless context.blank?
+        s.puts "in the context of"
+        s.puts "*#{context}*"
+      end
+      s.puts "Today's war is brought to you by the letter *#{username[0].upcase}*, as in `#{username}`."
+    end
+  end
 end
 
 module Warscribe
@@ -40,25 +55,12 @@ module Warscribe
 
   def todayswar(context)
     war = War.new
-    war.first_option = "option A"
-    war.second_option = "option B"
-    war.context = "context"
-    war.username = "someone"
+    war.first_option = ""
+    war.second_option = ""
+    war.context = ""
+    war.username = ""
 
-    welcome_message = String.build do |s|
-      s.puts "Hello and Good Morning Everybody!"
-      s.puts "Today's war will be fought between:"
-      s.puts "*#{war.first_option}*"
-      s.puts "and"
-      s.puts "*#{war.second_option}*"
-      unless war.context.blank?
-        s.puts "in the context of"
-        s.puts "*#{war.context}*"
-      end
-      s.puts "Today's war is brought to you by the letter *#{war.username[0].upcase}*, as in `#{war.username}`."
-    end
-
-    Slack.response(context, welcome_message, false)
+    Slack.response(context, war.format_for_slack, false)
   end
 
   def savewar(text : String, context : Stout::Context)
@@ -83,7 +85,7 @@ module Warscribe
 
     result = Warscribe::AIRTABLE.table("Wars").create(Airtable::Record.new({
       "Submitter"     => username,
-      "Date Added"    => Time.now.to_s(Time::Format::ISO_8601_DATE_TIME.pattern).strip,
+      "Date Added"    => Time::Format.new("%FT%X%z").format(now).strip,
       "First Option"  => war.first_option,
       "Second Option" => war.second_option,
       "Context"       => war.context,
