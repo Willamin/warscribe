@@ -83,7 +83,7 @@ module Warscribe
 
     war = War.new(text)
     war.username = username
-    Slack.response(context, war.format_for_slack)
+    Slack.response(context, war.format_for_slack, false)
   rescue ex : Warsplitter::WarCrime
     Slack.response(context, ex.to_s)
     return
